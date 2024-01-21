@@ -3,12 +3,14 @@
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Camera, FlipHorizontal, PersonStanding, Video } from "lucide-react";
+import { Camera, FlipHorizontal, PersonStanding, Video, Volume } from "lucide-react";
 import { toast } from "sonner";
 
 import React, { useRef, useState } from "react";
 import Webcam from "react-webcam";
 import { Rings } from "react-loader-spinner";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Slider } from "@/components/ui/slider";
 
 type Props = {};
 
@@ -20,6 +22,7 @@ const HomePage = (props: Props) => {
   const [mirrored, setMirrored] = useState<boolean>(false);
   const [isRecording, setIsRecording] = useState<boolean>(false);
   const [autoRecordEnabled, setAutoRecordEnabled] = useState<boolean>(false)
+  const [volume, setVolume] = useState(0.8)
 
   return (
     <div className="flex h-screen">
@@ -88,6 +91,30 @@ const HomePage = (props: Props) => {
           {/* Bottom Section */}
           <div className="flex flex-col gap-2">
             <Separator className="my-2" />
+
+            <Popover>
+              <PopoverTrigger>
+                <Button
+                  variant={"outline"}
+                  size={"icon"}
+                >
+                  <Volume />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent>
+                <Slider 
+                  max={1}
+                  min={0}
+                  step={0.1}
+                  defaultValue={[volume]}
+                  onValueCommit={(value) => {
+                    setVolume(value[0])
+                    beep(value[0])
+                  }}
+                />
+              </PopoverContent>
+            </Popover>
+
           </div>
         </div>
       </div>
