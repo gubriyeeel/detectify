@@ -1,19 +1,21 @@
-"use client"
+"use client";
 
-import { ThemeToggle } from "@/components/theme-toggle"
-import { Separator } from "@/components/ui/separator"
+import { ThemeToggle } from "@/components/theme-toggle";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { FlipHorizontal } from "lucide-react";
 
-import React, { useRef, useState } from 'react'
-import Webcam from "react-webcam"
+import React, { useRef, useState } from "react";
+import Webcam from "react-webcam";
 
-type Props = {} 
+type Props = {};
 
 const HomePage = (props: Props) => {
-  const webcamRef = useRef<Webcam>(null)
-  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const webcamRef = useRef<Webcam>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   // States
-  const [mirrored, setMirrored] = useState<boolean>(false)
+  const [mirrored, setMirrored] = useState<boolean>(false);
 
   return (
     <div className="flex h-screen">
@@ -38,8 +40,9 @@ const HomePage = (props: Props) => {
           {/* Top Section */}
           <div className="flex flex-col gap-2">
             <ThemeToggle />
+            
 
-            <Separator />
+            <Separator className="my-2" />
           </div>
           <div className="flex flex-col gap-2">
             <Separator />
@@ -53,6 +56,6 @@ const HomePage = (props: Props) => {
       </div>
     </div>
   );
-}
+};
 
-export default HomePage
+export default HomePage;
