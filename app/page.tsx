@@ -4,9 +4,11 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Camera, FlipHorizontal, PersonStanding, Video } from "lucide-react";
+import { toast } from "sonner";
 
 import React, { useRef, useState } from "react";
 import Webcam from "react-webcam";
+import { Rings } from "react-loader-spinner";
 
 type Props = {};
 
@@ -80,7 +82,7 @@ const HomePage = (props: Props) => {
               size={"icon"}
               onClick={toggleAutoRecord}
             >
-              {autoRecordEnabled ? "Show animation" : <PersonStanding />}
+              {autoRecordEnabled ? <Rings color="white" height={40} /> : <PersonStanding />}
             </Button>
           </div>
           {/* Bottom Section */}
@@ -109,7 +111,18 @@ const HomePage = (props: Props) => {
   }
 
   function toggleAutoRecord() {
-    
+    if (autoRecordEnabled) {
+      setAutoRecordEnabled(false)
+
+      // Show Toast Notification
+      toast.error("Autorecord Disabled")
+    } else {
+      setAutoRecordEnabled(true);
+
+      // Show Toast Notification
+      toast.success("Autorecord Enabled")
+    }
+
   }
 
 };
