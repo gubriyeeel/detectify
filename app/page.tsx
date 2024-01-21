@@ -1,9 +1,12 @@
 "use client"
 
+import { ThemeToggle } from "@/components/theme-toggle"
+import { Separator } from "@/components/ui/separator"
+
 import React, { useRef, useState } from 'react'
 import Webcam from "react-webcam"
 
-type Props = {}
+type Props = {} 
 
 const HomePage = (props: Props) => {
   const webcamRef = useRef<Webcam>(null)
@@ -22,17 +25,32 @@ const HomePage = (props: Props) => {
             mirrored={mirrored}
             className="h-full w-full object-contain p-2"
           />
-          <canvas 
+          <canvas
             ref={canvasRef}
             className="absolute top-0 left-0 h-full w-full object-contain"
-          >
-          
-          </canvas>
+          ></canvas>
         </div>
       </div>
 
       {/* Right Division - Button Panel and Wiki Section */}
-      
+      <div className="flex flex-row flex-1">
+        <div className="border-primary/5 border-2 max-w-xs flex flex-col gap-2 justify-between shadow-md rounded-md p-4">
+          {/* Top Section */}
+          <div className="flex flex-col gap-2">
+            <ThemeToggle />
+
+            <Separator />
+          </div>
+          <div className="flex flex-col gap-2">
+            <Separator />
+
+            <Separator />
+          </div>
+          <div className="flex flex-col gap-2">
+            <Separator />
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
