@@ -40,7 +40,15 @@ const HomePage = (props: Props) => {
           {/* Top Section */}
           <div className="flex flex-col gap-2">
             <ThemeToggle />
-            
+            <Button
+              variant={"outline"}
+              size={"icon"}
+              onClick={() => {
+                setMirrored((prev) => !prev);
+              }}
+            >
+              <FlipHorizontal />
+            </Button>
 
             <Separator className="my-2" />
           </div>
