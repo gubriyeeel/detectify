@@ -3,7 +3,7 @@
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { FlipHorizontal } from "lucide-react";
+import { Camera, FlipHorizontal, PersonStanding, Video } from "lucide-react";
 
 import React, { useRef, useState } from "react";
 import Webcam from "react-webcam";
@@ -16,6 +16,8 @@ const HomePage = (props: Props) => {
 
   // States
   const [mirrored, setMirrored] = useState<boolean>(false);
+  const [isRecording, setIsRecording] = useState<boolean>(false);
+  const [autoRecordEnabled, setAutoRecordEnabled] = useState<boolean>(false)
 
   return (
     <div className="flex h-screen">
@@ -52,18 +54,64 @@ const HomePage = (props: Props) => {
 
             <Separator className="my-2" />
           </div>
+          {/* Middle Section */}
           <div className="flex flex-col gap-2">
-            <Separator />
+            <Separator className="my-2" />
+            <Button
+              variant={"outline"}
+              size={"icon"}
+              onClick={userPromptScreenshot}
+            >
+              <Camera />
+            </Button>
 
-            <Separator />
+            <Button
+              variant={isRecording ? "destructive" : "outline"}
+              size={"icon"}
+              onClick={userPromptRecord}
+            >
+              <Video />
+            </Button>
+
+            <Separator className="my-2" />
+
+            <Button
+              variant={autoRecordEnabled ? "destructive" : "outline"}
+              size={"icon"}
+              onClick={toggleAutoRecord}
+            >
+              {autoRecordEnabled ? "Show animation" : <PersonStanding />}
+            </Button>
           </div>
+          {/* Bottom Section */}
           <div className="flex flex-col gap-2">
-            <Separator />
+            <Separator className="my-2" />
           </div>
         </div>
       </div>
     </div>
   );
+
+  // Handler Functions
+
+  function userPromptScreenshot() {
+    // Take Screenshot
+    // Save Screenshot
+  }
+
+  function userPromptRecord() {
+    // Recording
+      // Stop recording
+      // Save video
+
+    // Not Recording
+      // Start recording
+  }
+
+  function toggleAutoRecord() {
+    
+  }
+
 };
 
 export default HomePage;
