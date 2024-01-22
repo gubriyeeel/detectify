@@ -29,8 +29,10 @@ const HomePage = (props: Props) => {
   const [autoRecordEnabled, setAutoRecordEnabled] = useState<boolean>(false)
   const [volume, setVolume] = useState(0.8)
   const [model, setModel] = useState<ObjectDetection>();
+  const [loading, setLoading] = useState<boolean>(false)
 
   useEffect(() => {
+    setLoading(true)
     initModel();
   }, [])
 
@@ -38,7 +40,9 @@ const HomePage = (props: Props) => {
   // Set in state variable
 
   async function initModel() {
-    const loadedModel: ObjectDetection = await cocossd.load();
+    const loadedModel: ObjectDetection = await cocossd.load({
+      base: "mobilenet_v2",
+    });
 
     setModel(loadedModel)
   }
