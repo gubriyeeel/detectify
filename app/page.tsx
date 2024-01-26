@@ -128,7 +128,7 @@ const HomePage = (props: Props) => {
   useEffect(() => {
     interval = setInterval(() => {
       runPrediction();
-    }, 100);
+    }, 500);
 
     return () => clearInterval(interval);
   }, [webcamRef.current, model, mirrored, autoRecordEnabled, runPrediction]);
