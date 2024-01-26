@@ -1,41 +1,38 @@
 "use client";
-
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { Slider } from "@/components/ui/slider";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Separator } from "@/components/ui/separator";
+import { Slider } from "@/components/ui/slider";
+import { beep } from "@/utils/audio";
 import {
   Camera,
+  Divide,
   FlipHorizontal,
-  Moon,
+  MoonIcon,
   PersonStanding,
-  Sun,
+  SunIcon,
   Video,
   Volume2,
 } from "lucide-react";
-import { toast } from "sonner";
-import { Rings } from "react-loader-spinner";
-
-import { beep } from "@/utils/audio";
-
 import React, { useEffect, useRef, useState } from "react";
+import { Rings } from "react-loader-spinner";
 import Webcam from "react-webcam";
+import { toast } from "sonner";
 import * as cocossd from "@tensorflow-models/coco-ssd";
-import { DetectedObject, ObjectDetection } from "@tensorflow-models/coco-ssd";
 import "@tensorflow/tfjs-backend-cpu";
 import "@tensorflow/tfjs-backend-webgl";
+import { DetectedObject, ObjectDetection } from "@tensorflow-models/coco-ssd";
 import { drawOnCanvas } from "@/utils/draw";
 
 type Props = {};
 
 let interval: any = null;
 let stopTimeout: any = null;
-
 const HomePage = (props: Props) => {
   const webcamRef = useRef<Webcam>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -46,16 +43,18 @@ const HomePage = (props: Props) => {
   const [autoRecordEnabled, setAutoRecordEnabled] = useState<boolean>(false);
   const [volume, setVolume] = useState(0.8);
   const [model, setModel] = useState<ObjectDetection>();
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState(false);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
 
   // Initialize Media Recorder
   useEffect(() => {
     if (webcamRef && webcamRef.current) {
+      // Firefox uses mozcaptureStream, so modify as needed
       const stream = (webcamRef.current.video as any).captureStream();
       if (stream) {
         mediaRecorderRef.current = new MediaRecorder(stream);
+
         mediaRecorderRef.current.ondataavailable = (e) => {
           if (e.data.size > 0) {
             const recordedBlob = new Blob([e.data], { type: "video" });
@@ -67,11 +66,9 @@ const HomePage = (props: Props) => {
             a.click();
           }
         };
-
         mediaRecorderRef.current.onstart = (e) => {
           setIsRecording(true);
         };
-
         mediaRecorderRef.current.onstop = (e) => {
           setIsRecording(false);
         };
@@ -80,31 +77,23 @@ const HomePage = (props: Props) => {
   }, [webcamRef]);
 
   useEffect(() => {
-    let isMounted = true;
+    setLoading(true);
+    initModel();
+  }, []);
 
-    const initModel = async () => {
-      try {
-        const loadedModel: ObjectDetection = await cocossd.load({
-          base: "mobilenet_v2",
-        });
+  // Loads Model
+  // Set it in a state
+  async function initModel() {
+    const loadedModel: ObjectDetection = await cocossd.load({
+      base: "mobilenet_v2",
+    });
+    setModel(loadedModel);
+  }
 
-        if (isMounted) {
-          setModel(loadedModel);
-          setLoading(false);
-        }
-      } catch (error) {
-        console.error("Error loading model:", error);
-      }
-    };
-
-    if (!model) {
-      setLoading(true);
-      initModel();
+  useEffect(() => {
+    if (model) {
+      setLoading(false);
     }
-
-    return () => {
-      isMounted = false;
-    };
   }, [model]);
 
   async function runPrediction() {
@@ -120,25 +109,31 @@ const HomePage = (props: Props) => {
 
       resizeCanvas(canvasRef, webcamRef);
       drawOnCanvas(mirrored, predictions, canvasRef.current?.getContext("2d"));
+
+      let isPerson: boolean = false;
+      if (predictions.length > 0) {
+        predictions.forEach((prediction) => {
+          isPerson = prediction.class === "person";
+        });
+
+        if (isPerson && autoRecordEnabled) {
+          startRecording(true);
+        }
+      }
     }
   }
 
   useEffect(() => {
-    let animationFrameId: number;
-
-    const animate = () => {
+    interval = setInterval(() => {
       runPrediction();
-      animationFrameId = requestAnimationFrame(animate);
-    };
+    }, 100);
 
-    animationFrameId = requestAnimationFrame(animate);
-
-    return () => cancelAnimationFrame(animationFrameId);
-  }, [webcamRef.current, model, mirrored]);
+    return () => clearInterval(interval);
+  }, [webcamRef.current, model, mirrored, autoRecordEnabled, runPrediction]);
 
   return (
     <div className="flex h-screen">
-      {/* Left Division - Camera and Canvas */}
+      {/* Left Division - Webcam and Canvas  */}
       <div className="relative">
         <div className="relative h-screen w-full">
           <Webcam
@@ -153,10 +148,10 @@ const HomePage = (props: Props) => {
         </div>
       </div>
 
-      {/* Right Division - Button Panel and Wiki Section */}
-      <div className="flex flex-row flex-1 pt-2 pr-2 pb-2">
-        <div className="border-primary/5 border-2 max-w-xs flex flex-col gap-2 justify-between shadow-md rounded-md p-4">
-          {/* Top Section */}
+      {/* Righ Divsion - Container for Guides  */}
+      <div className="flex flex-row flex-1 p-2 pl-0">
+        <div className="border-primary/5 border-2 max-w-xs flex flex-col gap-2 justify-between shadow-md rounded-md p-2">
+          {/* Top Section  */}
           <div className="flex flex-col gap-2">
             <ThemeToggle />
             <Button
@@ -171,7 +166,8 @@ const HomePage = (props: Props) => {
 
             <Separator className="my-2" />
           </div>
-          {/* Middle Section */}
+
+          {/* Middle Section  */}
           <div className="flex flex-col gap-2">
             <Separator className="my-2" />
             <Button
@@ -181,7 +177,6 @@ const HomePage = (props: Props) => {
             >
               <Camera />
             </Button>
-
             <Button
               variant={isRecording ? "destructive" : "outline"}
               size={"icon"}
@@ -196,15 +191,15 @@ const HomePage = (props: Props) => {
               onClick={toggleAutoRecord}
             >
               {autoRecordEnabled ? (
-                <Rings color="white" height={40} />
+                <Rings color="white" height={45} />
               ) : (
                 <PersonStanding />
               )}
             </Button>
-
             <Separator className="my-2" />
           </div>
-          {/* Bottom Section */}
+
+          {/* Bottom Section  */}
           <div className="flex flex-col gap-2">
             <Separator className="my-2" />
 
@@ -218,11 +213,11 @@ const HomePage = (props: Props) => {
                 <Slider
                   max={1}
                   min={0}
-                  step={0.1}
+                  step={0.2}
                   defaultValue={[volume]}
-                  onValueCommit={(value) => {
-                    setVolume(value[0]);
-                    beep(value[0]);
+                  onValueCommit={(val) => {
+                    setVolume(val[0]);
+                    beep(val[0]);
                   }}
                 />
               </PopoverContent>
@@ -230,10 +225,8 @@ const HomePage = (props: Props) => {
           </div>
         </div>
 
-        {/* Wiki Section */}
-
         <div className="h-full flex-1 py-4 px-2 overflow-y-scroll">
-          <Features />
+          <RenderFeatureHighlightsSection />
         </div>
       </div>
       {loading && (
@@ -248,37 +241,51 @@ const HomePage = (props: Props) => {
   // Handler Functions
 
   function userPromptScreenshot() {
-    // Take Screenshot
-    // Save Screenshot
+    // Take a screenshot
+    if (!webcamRef.current) {
+      toast("Camera not found. Please refresh and try again.");
+    } else {
+      const imageSource = webcamRef.current.getScreenshot();
+      console.log(imageSource);
+      const blob = base64toBlob(imageSource);
+
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${formatDate(new Date())}.webp`;
+      a.click();
+    }
+    // Save to downloads
   }
 
   function userPromptRecord() {
-    if (webcamRef.current) {
-      toast("Camera not found. Please refresh and try again.");
+    if (!webcamRef.current) {
+      toast("Camera is not found. Please refresh.");
     }
 
-    if (mediaRecorderRef.current?.state === "recording") {
-      // Recording
-      // Stop recording
-      // Save video
+    if (mediaRecorderRef.current?.state == "recording") {
+      // Check if current recording
+      // Stop Recording
+      // And save it downloads
       mediaRecorderRef.current.requestData();
+      clearTimeout(stopTimeout);
       mediaRecorderRef.current.stop();
-      toast("Recording saved to downloads.");
+      toast("Recording saved to downloads");
     } else {
-      // Not Recording
+      // If not recording
       // Start recording
-      startRecording();
+      startRecording(false);
     }
   }
 
-  function startRecording() {
+  function startRecording(doBeep: boolean) {
     if (webcamRef.current && mediaRecorderRef.current?.state !== "recording") {
       mediaRecorderRef.current?.start();
+      doBeep && beep(volume);
 
       stopTimeout = setTimeout(() => {
         if (mediaRecorderRef.current?.state === "recording") {
           mediaRecorderRef.current.requestData();
-          clearTimeout(stopTimeout);
           mediaRecorderRef.current.stop();
         }
       }, 30000);
@@ -288,32 +295,29 @@ const HomePage = (props: Props) => {
   function toggleAutoRecord() {
     if (autoRecordEnabled) {
       setAutoRecordEnabled(false);
-
-      // Show Toast Notification
-      toast.error("Autorecord Disabled");
+      toast("Autorecord disabled");
+      // Show toast to notify user that autorecord is disabled
     } else {
       setAutoRecordEnabled(true);
-
-      // Show Toast Notification
-      toast.success("Autorecord Enabled");
+      toast("Autorecord enabled");
+      // Show toast to notify user that autorecord is enabled
     }
   }
 
   // Inner Components
-
-  function Features() {
+  function RenderFeatureHighlightsSection() {
     return (
-      <div className="text-sm text-muted-foreground pl-2">
+      <div className="text-xs text-muted-foreground">
         <ul className="space-y-4">
           <li>
             <strong>Dark Mode</strong>
             <p>Toggle between dark mode and system theme.</p>
             <Button className="my-2 h-6 w-6" variant={"outline"} size={"icon"}>
-              <Sun size={14} />
+              <SunIcon size={14} />
             </Button>{" "}
             /{" "}
             <Button className="my-2 h-6 w-6" variant={"outline"} size={"icon"}>
-              <Moon size={14} />
+              <MoonIcon size={14} />
             </Button>
           </li>
           <li>
@@ -357,7 +361,7 @@ const HomePage = (props: Props) => {
           </li>
           <Separator />
           <li>
-            <strong>Enable/Disable Auto Record</strong>
+            <strong>Autorecord Toggle</strong>
             <p>
               Option to enable/disable automatic video recording whenever
               required.
@@ -368,16 +372,20 @@ const HomePage = (props: Props) => {
               size={"icon"}
               onClick={toggleAutoRecord}
             >
-              <PersonStanding size={14} />
+              {autoRecordEnabled ? (
+                <Rings color="white" height={30} />
+              ) : (
+                <PersonStanding size={14} />
+              )}
             </Button>
           </li>
 
           <li>
-            <strong>Volume Slider 🔊</strong>
+            <strong>Volume Slider</strong>
             <p>Adjust the volume level of the notifications.</p>
           </li>
           <li>
-            <strong>Camera Feed Highlighting 🎨</strong>
+            <strong>Camera Feed Highlighting</strong>
             <p>
               Highlights persons in{" "}
               <span style={{ color: "#FF0F0F" }}>red</span> and other objects in{" "}
@@ -391,12 +399,14 @@ const HomePage = (props: Props) => {
 };
 
 export default HomePage;
+
 function resizeCanvas(
   canvasRef: React.RefObject<HTMLCanvasElement>,
   webcamRef: React.RefObject<Webcam>
 ) {
   const canvas = canvasRef.current;
   const video = webcamRef.current?.video;
+
   if (canvas && video) {
     const { videoWidth, videoHeight } = video;
     canvas.width = videoWidth;
@@ -410,13 +420,24 @@ function formatDate(date: Date) {
       (date.getMonth() + 1).toString().padStart(2, "0"),
       date.getDate().toString().padStart(2, "0"),
       date.getFullYear(),
-    ].join("–") +
+    ].join("-") +
     " " +
     [
       date.getHours().toString().padStart(2, "0"),
       date.getMinutes().toString().padStart(2, "0"),
       date.getSeconds().toString().padStart(2, "0"),
-    ].join("–");
-
+    ].join("-");
   return formattedDate;
+}
+
+function base64toBlob(base64Data: any) {
+  const byteCharacters = atob(base64Data.split(",")[1]);
+  const arrayBuffer = new ArrayBuffer(byteCharacters.length);
+  const byteArray = new Uint8Array(arrayBuffer);
+
+  for (let i = 0; i < byteCharacters.length; i++) {
+    byteArray[i] = byteCharacters.charCodeAt(i);
+  }
+
+  return new Blob([arrayBuffer], { type: "image/png" }); // Specify the image type here
 }
