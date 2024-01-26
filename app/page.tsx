@@ -88,7 +88,7 @@ const HomePage = (props: Props) => {
   useEffect(() => {
     interval = setInterval(() => {
       runPrediction();
-    }, 500);
+    }, 100);
 
     return () => {
       clearInterval(interval);

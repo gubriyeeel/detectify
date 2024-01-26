@@ -16,16 +16,18 @@ export function drawOnCanvas(
       ctx.fillStyle = name === "person" ? "#FF0F0F" : "#00B612";
       ctx.globalAlpha = 0.4;
 
-      ctx.roundRect(x, y, width, height, 8);
+      mirrored
+        ? ctx.roundRect(ctx.canvas.width - x, y, -width, height, 8)
+        : ctx.roundRect(x, y, width, height, 8);
 
       // Draw
       ctx.fill();
 
       // Text Styles
-      ctx.font = "12px Arial";
+      ctx.font = "12px Courier New";
       ctx.globalAlpha = 1;
 
-      ctx.fillText(name, x, y)
+      ctx.fillText(name, x, y);
     }
   });
 }
