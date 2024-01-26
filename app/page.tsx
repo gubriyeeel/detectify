@@ -47,6 +47,29 @@ const HomePage = (props: Props) => {
   const [model, setModel] = useState<ObjectDetection>();
   const [loading, setLoading] = useState<boolean>(false);
 
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+
+  // Initialize Media Recorder
+  useEffect(() => {
+    if (webcamRef && webcamRef.current) {
+      const stream = (webcamRef.current.video as any).captureStream();
+      if (stream) {
+        mediaRecorderRef.current = new MediaRecorder(stream);
+        mediaRecorderRef.current.ondataavailable = (e) => {
+          if (e.data.size > 0) {
+            const recordedBlob = new Blob([e.data], { type: "video" });
+            const videoURL = URL.createObjectURL(recordedBlob);
+
+            const a = document.createElement("a");
+            a.href = videoURL;
+            a.download = `${formatDate(new Date())}.webm`;
+            a.click();
+          }
+        };
+      }
+    }
+  }, [webcamRef]);
+
   useEffect(() => {
     let isMounted = true;
 
@@ -88,7 +111,6 @@ const HomePage = (props: Props) => {
 
       resizeCanvas(canvasRef, webcamRef);
       drawOnCanvas(mirrored, predictions, canvasRef.current?.getContext("2d"));
-
     }
   }
 
@@ -346,4 +368,21 @@ function resizeCanvas(
     canvas.width = videoWidth;
     canvas.height = videoHeight;
   }
+}
+
+function formatDate(date: Date) {
+  const formattedDate =
+    [
+      (date.getMonth() + 1).toString().padStart(2, "0"),
+      date.getDate().toString().padStart(2, "0"),
+      date.getFullYear(),
+    ].join("–") +
+    " " +
+    [
+      date.getHours().toString().padStart(2, "0"),
+      date.getMinutes().toString().padStart(2, "0"),
+      date.getSeconds().toString().padStart(2, "0"),
+    ].join("–");
+
+  return formattedDate;
 }
