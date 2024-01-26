@@ -40,7 +40,7 @@ const HomePage = (props: Props) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   // States
-  const [mirrored, setMirrored] = useState<boolean>(false);
+  const [mirrored, setMirrored] = useState<boolean>(true);
   const [isRecording, setIsRecording] = useState<boolean>(false);
   const [autoRecordEnabled, setAutoRecordEnabled] = useState<boolean>(false);
   const [volume, setVolume] = useState(0.8);
@@ -89,7 +89,6 @@ const HomePage = (props: Props) => {
       resizeCanvas(canvasRef, webcamRef);
       drawOnCanvas(mirrored, predictions, canvasRef.current?.getContext("2d"));
 
-      console.log(predictions);
     }
   }
 
@@ -104,7 +103,7 @@ const HomePage = (props: Props) => {
     animationFrameId = requestAnimationFrame(animate);
 
     return () => cancelAnimationFrame(animationFrameId);
-  }, [webcamRef.current, model]);
+  }, [webcamRef.current, model, mirrored]);
 
   return (
     <div className="flex h-screen">

@@ -25,9 +25,21 @@ export function drawOnCanvas(
 
       // Text Styles
       ctx.font = "12px Courier New";
+      ctx.fillStyle = "#FFF";
       ctx.globalAlpha = 1;
 
-      ctx.fillText(name, x, y);
+      const { paddingX, paddingY } = {
+        paddingX: 10,
+        paddingY: 20,
+      };
+
+      mirrored
+        ? ctx.fillText(
+            name,
+            ctx.canvas.width - x - width + paddingX,
+            y + paddingY
+          )
+        : ctx.fillText(name, x + paddingX, y + paddingY);
     }
   });
 }
