@@ -66,6 +66,14 @@ const HomePage = (props: Props) => {
             a.click();
           }
         };
+
+        mediaRecorderRef.current.onstart = (e) => {
+          setIsRecording(true);
+        };
+
+        mediaRecorderRef.current.onstop = (e) => {
+          setIsRecording(false);
+        };
       }
     }
   }, [webcamRef]);
