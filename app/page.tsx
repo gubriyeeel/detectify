@@ -30,6 +30,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { UserButton } from "@clerk/nextjs";
 
 type Props = {};
 
@@ -152,6 +153,8 @@ const HomePage = (props: Props) => {
 
       {/* Bottom Division - Controls */}
       <div className="absolute flex flex-row justify-center items-center py-2 w-full bottom-4 gap-2">
+        <UserButton afterSignOutUrl="/" />
+
         <ThemeToggle />
 
         <TooltipProvider>
