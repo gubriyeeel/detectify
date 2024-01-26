@@ -34,6 +34,7 @@ import { drawOnCanvas } from "@/utils/draw";
 type Props = {};
 
 let interval: any = null;
+let stopTimeout: any = null;
 
 const HomePage = (props: Props) => {
   const webcamRef = useRef<Webcam>(null);
@@ -252,11 +253,36 @@ const HomePage = (props: Props) => {
   }
 
   function userPromptRecord() {
-    // Recording
-    // Stop recording
-    // Save video
-    // Not Recording
-    // Start recording
+    if (webcamRef.current) {
+      toast("Camera not found. Please refresh and try again.");
+    }
+
+    if (mediaRecorderRef.current?.state === "recording") {
+      // Recording
+      // Stop recording
+      // Save video
+      mediaRecorderRef.current.requestData();
+      mediaRecorderRef.current.stop();
+      toast("Recording saved to downloads.");
+    } else {
+      // Not Recording
+      // Start recording
+      startRecording();
+    }
+  }
+
+  function startRecording() {
+    if (webcamRef.current && mediaRecorderRef.current?.state !== "recording") {
+      mediaRecorderRef.current?.start();
+
+      stopTimeout = setTimeout(() => {
+        if (mediaRecorderRef.current?.state === "recording") {
+          mediaRecorderRef.current.requestData();
+          clearTimeout(stopTimeout);
+          mediaRecorderRef.current.stop();
+        }
+      }, 30000);
+    }
   }
 
   function toggleAutoRecord() {
