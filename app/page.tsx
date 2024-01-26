@@ -48,25 +48,31 @@ const HomePage = (props: Props) => {
   const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
-    setLoading(true);
-    initModel();
-  }, [model]);
+    let isMounted = true;
 
-  // Model Loader
-  // Set in state variable
+    const initModel = async () => {
+      try {
+        const loadedModel: ObjectDetection = await cocossd.load({
+          base: "mobilenet_v2",
+        });
 
-  async function initModel() {
-    const loadedModel: ObjectDetection = await cocossd.load({
-      base: "mobilenet_v2",
-    });
+        if (isMounted) {
+          setModel(loadedModel);
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error("Error loading model:", error);
+      }
+    };
 
-    setModel(loadedModel);
-  }
-
-  useEffect(() => {
-    if (model) {
-      setLoading(false);
+    if (!model) {
+      setLoading(true);
+      initModel();
     }
+
+    return () => {
+      isMounted = false;
+    };
   }, [model]);
 
   async function runPrediction() {
@@ -76,7 +82,9 @@ const HomePage = (props: Props) => {
       webcamRef.current.video &&
       webcamRef.current.video.readyState === 4
     ) {
-      const predictions: DetectedObject[] = await model.detect(webcamRef.current.video);
+      const predictions: DetectedObject[] = await model.detect(
+        webcamRef.current.video
+      );
 
       resizeCanvas(canvasRef, webcamRef);
       drawOnCanvas(mirrored, predictions, canvasRef.current?.getContext("2d"));
@@ -86,13 +94,16 @@ const HomePage = (props: Props) => {
   }
 
   useEffect(() => {
-    interval = setInterval(() => {
-      runPrediction();
-    }, 100);
+    let animationFrameId: number;
 
-    return () => {
-      clearInterval(interval);
+    const animate = () => {
+      runPrediction();
+      animationFrameId = requestAnimationFrame(animate);
     };
+
+    animationFrameId = requestAnimationFrame(animate);
+
+    return () => cancelAnimationFrame(animationFrameId);
   }, [webcamRef.current, model]);
 
   return (
