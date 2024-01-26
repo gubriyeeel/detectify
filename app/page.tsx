@@ -153,7 +153,9 @@ const HomePage = (props: Props) => {
 
       {/* Bottom Division - Controls */}
       <div className="absolute flex flex-row justify-center items-center py-2 w-full bottom-4 gap-2">
-        <UserButton afterSignOutUrl="/" />
+        <div className="absolute left-4">
+          <UserButton />
+        </div>
 
         <ThemeToggle />
 
