@@ -65,7 +65,7 @@ const HomePage = (props: Props) => {
 
             const a = document.createElement("a");
             a.href = videoURL;
-            a.download = `${formatDate(new Date())}.webm`;
+            a.download = `${formatDate(new Date())}.mp4`;
             a.click();
           }
         };
@@ -276,7 +276,7 @@ const HomePage = (props: Props) => {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `${formatDate(new Date())}.webp`;
+      a.download = `${formatDate(new Date())}.png`;
       a.click();
     }
     // Save to downloads
