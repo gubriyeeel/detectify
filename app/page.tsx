@@ -153,7 +153,7 @@ const HomePage = (props: Props) => {
 
       {/* Bottom Division - Controls */}
       <div className="absolute flex flex-row justify-center items-center py-2 w-full bottom-4 gap-2">
-        <div className="absolute left-6">
+        <div className="absolute lg:left-6 top-4 left-4">
           <UserButton />
         </div>
 
