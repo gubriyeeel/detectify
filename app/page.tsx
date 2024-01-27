@@ -153,9 +153,7 @@ const HomePage = (props: Props) => {
 
       {/* Bottom Division - Controls */}
       <div className="absolute flex flex-row justify-center items-center py-2 w-full bottom-4 gap-2">
-        <div className="absolute lg:left-6 top-4 left-4">
-          <UserButton />
-        </div>
+        <UserButton />
 
         <ThemeToggle />
 
@@ -352,7 +350,7 @@ function formatDate(date: Date) {
       date.getDate().toString().padStart(2, "0"),
       date.getFullYear(),
     ].join("-") +
-    " " +
+    "-" +
     [
       date.getHours().toString().padStart(2, "0"),
       date.getMinutes().toString().padStart(2, "0"),
