@@ -132,7 +132,7 @@ const HomePage = (props: Props) => {
     }, 500);
 
     return () => clearInterval(interval);
-  }, [model, mirrored, autoRecordEnabled, runPrediction]);
+  }, [webcamRef.current, model, mirrored, autoRecordEnabled, runPrediction]);
 
   return (
     <div className="flex flex-col relative">
